@@ -7,7 +7,7 @@ class WebPool(object):
         self.browsers = {}
         self.result = {}
         self.actions = {}
-        self.ignored = ('send_keys',)
+        self.ignored = ('send_keys', 'get')
 
     def start(self):
         for name, browser in self.browsers.items():

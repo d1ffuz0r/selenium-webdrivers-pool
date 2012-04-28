@@ -6,6 +6,19 @@ from selenium import webdriver
 from selenium.webdriver.remote.webelement import WebElement
 
 
+def check(result=None, assertion=None, act=None, arg=None):
+    for name, value in result.items():
+        if isinstance(act, (tuple, list)):
+            assertion(getattr(value, act[0])(act[1]), arg)
+        else:
+            assertion(getattr(value, act), arg)
+
+
+def check_item(result=None, assertion=None, arg=None):
+    for name, value in result.items():
+        assertion(value, arg)
+
+
 class Tests(unittest.TestCase):
 
     wait = threading.Event().wait
@@ -14,7 +27,7 @@ class Tests(unittest.TestCase):
     def setUpClass(cls):
         cls.pool = WebPool()
         cls.brs = {'chrome': webdriver.Chrome,
-                   'chrome1': webdriver.Chrome}
+                   'firefox': webdriver.Firefox}
         cls.pool.browsers = cls.brs
         cls.pool.action('implicitly_wait', 40)
 
@@ -30,22 +43,26 @@ class Tests(unittest.TestCase):
         self.pool.start()
         self.pool.action('get', 'http://localhost:8000')
         ac = self.pool.action('find_element_by_tag_name', 'p')
-        self.assertIsInstance(ac['chrome1'], WebElement)
-        self.assertIsInstance(ac['chrome'], WebElement)
+
+        check_item(result=ac, assertion=self.assertIsInstance, arg=WebElement)
+        check(result=ac, assertion=self.assertEquals, act='tag_name', arg='p')
 
     def test_go_to_links(self):
         self.pool.start()
         self.pool.action('get', 'http://localhost:8000')
-        self.pool.action('get', 'http://localhost:8000/news/')
+        ac = self.pool.action('get', 'http://localhost:8000/news/')
+
+        check(result=ac, assertion=self.assertEquals,
+              act='current_url', arg=u'http://localhost:8000/news/')
 
     def test_chain_actions(self):
         self.pool.start()
         self.pool.action('get', 'http://localhost:8000/feedback/')
         self.pool.action('find_element_by_name', 'name')
-        self.pool.action('send_keys', 'None')
-        vals = self.pool.result
-        self.assertEquals(vals['chrome'].get_attribute('value'), 'None')
-        self.assertEquals(vals['chrome1'].get_attribute('value'), 'None')
+        vals = self.pool.action('send_keys', 'None')
+
+        check(result=vals, assertion=self.assertEquals,
+              act=('get_attribute', 'value'), arg='None')
 
 if __name__ == '__main__':
     unittest.main()
