@@ -27,14 +27,13 @@ class Tests(unittest.TestCase):
     def setUpClass(cls):
         cls.pool = WebPool()
         cls.brs = {'chrome': webdriver.Chrome,
-                   'firefox': webdriver.Firefox}
+                   'chrome1': webdriver.Chrome}
         cls.pool.browsers = cls.brs
         cls.pool.action('implicitly_wait', 40)
 
     @classmethod
     def tearDownClass(cls):
         cls.pool.stop()
-        cls.pool.result = {}
 
     def test_add_browser(self):
         self.assertEquals(self.pool.browsers, self.brs)
@@ -50,19 +49,46 @@ class Tests(unittest.TestCase):
     def test_go_to_links(self):
         self.pool.start()
         self.pool.action('get', 'http://localhost:8000')
-        ac = self.pool.action('get', 'http://localhost:8000/news/')
+        self.pool.action('get', 'http://localhost:8000/news/')
 
-        check(result=ac, assertion=self.assertEquals,
+        check(result=self.pool.result, assertion=self.assertEquals,
               act='current_url', arg=u'http://localhost:8000/news/')
 
     def test_chain_actions(self):
         self.pool.start()
         self.pool.action('get', 'http://localhost:8000/feedback/')
         self.pool.action('find_element_by_name', 'name')
-        vals = self.pool.action('send_keys', 'None')
+        self.pool.action('send_keys', 'None')
 
-        check(result=vals, assertion=self.assertEquals,
+        check(result=self.pool.result, assertion=self.assertEquals,
               act=('get_attribute', 'value'), arg='None')
+
+
+
+class TestPool(unittest.TestCase):
+    def setUp(self):
+        self.pool = WebPool()
+
+    def test_object(self):
+        self.assertIsInstance(self.pool, WebPool)
+
+    def test_empty(self):
+        self.assertDictEqual(self.pool.browsers, {})
+        self.assertDictEqual(self.pool.result, {})
+        self.assertDictEqual(self.pool.actions, {})
+        self.assertEquals(self.pool.ignored, ('send_keys', 'get'))
+
+    def test_start(self):
+        self.pool.start()
+        brs = {'chrome': webdriver.Chrome,
+               'chrome1': webdriver.Chrome}
+        self.pool.browsers = brs
+        self.assertEquals(self.pool.browsers.keys(), ['chrome', 'chrome1'])
+        self.pool.start()
+        self.assertEquals(self.pool.result.keys(), ['chrome', 'chrome1'])
+        self.pool.stop()
+        self.assertDictEqual(self.pool.result, {})
+
 
 if __name__ == '__main__':
     unittest.main()

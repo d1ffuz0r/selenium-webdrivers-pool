@@ -16,7 +16,7 @@ class WebPool(object):
                 self.browsers[name] = b
                 self.result[name] = b
             except:
-                self.result[name] = False
+                self.result[name] = browser
         return self.result
 
     def stop(self):
@@ -26,7 +26,7 @@ class WebPool(object):
             except:
                 pass
             finally:
-                del self.browsers[name]
+                del self.result[name]
 
     def action(self, action, arg):
         for name, browser in self.browsers.items():
