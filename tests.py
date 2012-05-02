@@ -64,7 +64,6 @@ class Tests(unittest.TestCase):
               act=('get_attribute', 'value'), arg='None')
 
 
-
 class TestPool(unittest.TestCase):
     def setUp(self):
         self.pool = WebPool()
