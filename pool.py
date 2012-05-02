@@ -34,6 +34,9 @@ class WebPool(object):
                     self.result[name] = getattr(browser, action)(arg)
                 elif action in self.ignored:
                     getattr(self.result[name], action)(arg)
+                elif action.startswith('find_'):
+                    self.result[name] = browser
+                    self.result[name] = getattr(self.result[name], action)(arg)
                 else:
                     self.result[name] = getattr(self.result[name], action)(arg)
             except:

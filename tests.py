@@ -63,6 +63,14 @@ class Tests(unittest.TestCase):
         check(result=self.pool.result, assertion=self.assertEquals,
               act=('get_attribute', 'value'), arg='None')
 
+    def test_login(self):
+        self.pool.start()
+        self.pool.action('get', 'http://localhost:8001')
+        self.pool.action('find_element_by_name', "login")
+        self.pool.action('send_keys', u"root\ue004")
+        self.pool.action('find_element_by_name', "password")
+        self.pool.action('send_keys', u"root\ue007")
+
 
 class TestPool(unittest.TestCase):
     def setUp(self):
