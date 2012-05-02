@@ -41,17 +41,17 @@ class Tests(unittest.TestCase):
     def test_get_page_browsers(self):
         self.pool.start()
         self.pool.action('get', 'http://localhost:8000')
-        ac = self.pool.action('find_element_by_tag_name', 'p')
+        self.pool.action('find_element_by_tag_name', 'p')
 
-        check_item(result=ac, assertion=self.assertIsInstance, arg=WebElement)
-        check(result=ac, assertion=self.assertEquals, act='tag_name', arg='p')
+        check_item(result=self.pool.result, assertion=self.assertIsInstance, arg=WebElement)
+        check(result=self.pool.result, assertion=self.assertEquals, act='tag_name', arg='p')
 
     def test_go_to_links(self):
         self.pool.start()
         self.pool.action('get', 'http://localhost:8000')
         self.pool.action('get', 'http://localhost:8000/news/')
 
-        check(result=self.pool.result, assertion=self.assertEquals,
+        check(result=self.pool.browsers, assertion=self.assertEquals,
               act='current_url', arg=u'http://localhost:8000/news/')
 
     def test_chain_actions(self):
@@ -70,6 +70,11 @@ class Tests(unittest.TestCase):
         self.pool.action('send_keys', u"root\ue004")
         self.pool.action('find_element_by_name', "password")
         self.pool.action('send_keys', u"root\ue007")
+        self.pool.action('find_element_by_css_selector', '.langs-streams a[href="/news/"]')
+        self.pool.action('click')
+
+        check(result=self.pool.browsers, assertion=self.assertEquals,
+              act='current_url', arg=u'http://localhost:8001/news/')
 
 
 class TestPool(unittest.TestCase):

@@ -27,11 +27,13 @@ class WebPool(object):
             finally:
                 del self.result[name]
 
-    def action(self, action, arg):
+    def action(self, action, arg=None):
         for name, browser in self.browsers.items():
             try:
                 if not self.result[name]:
                     self.result[name] = getattr(browser, action)(arg)
+                elif not arg:
+                    self.result[name] = getattr(self.result[name], action)()
                 elif action in self.ignored:
                     getattr(self.result[name], action)(arg)
                 elif action.startswith('find_'):
