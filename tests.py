@@ -1,9 +1,12 @@
 #!/usr/bin/env python
 import unittest
 import threading
+
 from pool import WebPool
+
 from selenium import webdriver
 from selenium.webdriver.remote.webelement import WebElement
+from selenium.webdriver.firefox.firefox_profile import FirefoxProfile
 
 
 def check(result=None, assertion=None, act=None, arg=None):
@@ -27,7 +30,8 @@ class Tests(unittest.TestCase):
     def setUpClass(cls):
         cls.pool = WebPool()
         cls.brs = {'chrome': webdriver.Chrome,
-                   'chrome1': webdriver.Chrome}
+                   'chrome1': webdriver.Chrome,
+                   'chrome2': webdriver.Chrome}
         cls.pool.browsers = cls.brs
         cls.pool.action('implicitly_wait', 40)
 
@@ -93,11 +97,12 @@ class TestPool(unittest.TestCase):
     def test_start(self):
         self.pool.start()
         brs = {'chrome': webdriver.Chrome,
-               'chrome1': webdriver.Chrome}
+               'chrome1': webdriver.Chrome,
+               'chrome2': webdriver.Chrome}
         self.pool.browsers = brs
-        self.assertEquals(self.pool.browsers.keys(), ['chrome', 'chrome1'])
+        self.assertEquals(self.pool.browsers.keys(), ['chrome', 'chrome1', 'chrome2'])
         self.pool.start()
-        self.assertEquals(self.pool.result.keys(), ['chrome', 'chrome1'])
+        self.assertEquals(self.pool.result.keys(), ['chrome', 'chrome1', 'chrome2'])
         self.pool.stop()
         self.assertDictEqual(self.pool.result, {})
 
